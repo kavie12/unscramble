@@ -1,0 +1,139 @@
+body {
+    height: 100vh;
+    overflow: hidden;
+    background: linear-gradient(to right, #0f2027, #203a43, #2c5364);
+}
+
+.container {
+    text-align: center;
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    color: whitesmoke;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.container#homeScreen {
+    margin-top: 24vh;
+}
+
+.container#gameScreen {
+    margin-top: 28px;
+}
+
+.hidden {
+    display: none;
+}
+
+h1 {
+    font-size: 48px;
+}
+
+.play-button {
+    margin-top: 60px;
+    font-size: 24px;
+    color: black;
+    padding: 20px 44px;
+    border-radius: 40px;
+    border-width: 4px;
+    border-style: solid;
+    border-color: black;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.1s;
+    box-shadow: black 4px 8px;
+}
+
+.play-button:hover {
+    color: black;
+    border-color: black;
+}
+
+.play-button:active {
+    transform: translate(2px, 4px);
+    box-shadow: black 2px 4px;
+}
+
+.scrambled-word {
+    margin-top: 20vh;
+    font-size: 48px;
+    font-weight: bold;
+}
+
+.answer-field {
+    margin-top: 60px;
+    outline: none;
+    font-size: 16px;
+    padding: 12px 12px;
+    border-radius: 8px;
+}
+
+.answer-button {
+    margin-top: 36px;
+    padding: 12px 32px;
+    font-size: 16px;
+    background-color: #00bcd4;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.skip-button {
+    margin-top: 24px;
+    font-size: 16px;
+    background: none;
+    color: whitesmoke;
+    outline: none;
+    border: none;
+    padding: 0;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.answer-button:not(:disabled):hover {
+    background-color: #00c5df;
+    box-shadow: #002227bb 4px 8px 12px -4px;
+}
+
+.answer-button:not(:disabled):active {
+    transform: translateY(2px);
+    box-shadow: rgba(0, 0, 0, 0.5) 4px 6px 12px -4px;
+}
+
+.answer-button:disabled {
+    color: black;
+    background-color: #13a4b8;
+    cursor: default;
+}
+
+.messages {
+    margin-top: 80px;
+}
+
+.correct-answer-message,
+.correct-answer-feedback,
+.wrong-answer-feedback {
+    font-size: 20px;
+}
+
+.correct-answer-message #correctAnswer {
+    color: #d4d400;
+    font-weight: bold;
+}
+
+/* https://css-loaders.com/progress/ */
+.loader {
+    margin-top: 40px;
+    width: 200px;
+    height: 4px;
+    background: linear-gradient(#f8f8f8 0 0) 0/0% no-repeat #a8a8a8;
+    animation: loader-animation 2s linear;
+}
+
+@keyframes loader-animation {
+    100% {
+        background-size: 100%
+    }
+}

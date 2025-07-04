@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Unscramble</title>
+    <link rel="stylesheet" href="./style.css">
+</head>
+
+<body>
+
+    <div class="container" id="homeScreen">
+        <h1>Unscramble</h1>
+        <caption>Guess the correct word from the scramble. 10 rounds. 1 chance per round. Good luck!</caption>
+        <button class="play-button" id="btnPlay">Play</button>
+    </div>
+
+    <div class="container hidden" id="gameScreen">
+        <span id="roundDetails"></span>
+        <span class="scrambled-word" id="scrambledWord"></span>
+        <input type="text" name="answer" id="answerField" class="answer-field" placeholder="Your answer..."
+            autocomplete="off">
+        <button class="answer-button" id="btnAnswer" type="button">Answer</button>
+        <button class="skip-button" id="btnSkip" type="button">Skip</button>
+        <div class="messages">
+            <p class="correct-answer-feedback hidden" id="correctAnswerFeedback">Your answer is correct!</p>
+            <p class="wrong-answer-feedback hidden" id="wrongAnswerFeedback">Your answer is wrong!</p>
+            <p class="correct-answer-message hidden" id="correctAnswerMsg"><span id="correctAnswer"></span> is the
+                correct answer!</p>
+        </div>
+        <div class="loader hidden" id="loader"></div>
+    </div>
+
+    <script src="./index.js"></script>
+</body>
+
+</html>
