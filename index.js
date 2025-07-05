@@ -1,4 +1,4 @@
-const ROUND_COUNT = 10;
+const TOTAL_ROUNDS = 10;
 const WORDLIST = [
     "Mango",
     "Banana",
@@ -11,10 +11,13 @@ const WORDLIST = [
     "Light",
     "Book"
 ];
+const NEXT_QUESTION_DELAY = 2000;
 
 const homeScreen = document.getElementById("homeScreen");
 const gameScreen = document.getElementById("gameScreen");
+const scoreScreen = document.getElementById("scoreScreen");
 
+const btnPlay = document.getElementById("btnPlay");
 const roundDetailsTxt = document.getElementById("roundDetails");
 const scrambledWordTxt = document.getElementById("scrambledWord");
 const btnAnswer = document.getElementById("btnAnswer");
@@ -25,44 +28,74 @@ const correctAnswerTxt = document.getElementById("correctAnswer");
 const correctAnswerFeedback = document.getElementById("correctAnswerFeedback");
 const wrongAnswerFeedback = document.getElementById("wrongAnswerFeedback");
 const loader = document.getElementById("loader");
+const finalScoreTxt = document.getElementById("finalScore");
+const btnPlayAgain = document.getElementById("btnPlayAgain");
 
+const Screens = Object.freeze({
+    HOME_SCREEN: 0,
+    GAME_SCREEN: 1,
+    SCORE_SCREEN: 2
+});
+
+// START GAME
 document.addEventListener("DOMContentLoaded", () => {
 
-    const btnPlay = document.getElementById("btnPlay");
+    let gameState = null;
 
     // Play button click
     btnPlay.addEventListener("click", () => {
-        let round = 0;
+        changeScreen(Screens.GAME_SCREEN);
 
-        displayGameScreen();
+        gameState = new GameState(fetchWords(), TOTAL_ROUNDS);
 
-        const words = WORDLIST.map(word => new Word(word));
-        loadWord(words, round);
+        handleNextWord(gameState);
     });
 
+    // Answer button click
+    btnAnswer.addEventListener("click", () => {
+        disableInputs();
+        handleCheckAnswer(gameState.currentWord, answerField.value, () => gameState.increaseScore());
+        displayLoader();
+
+        setTimeout(() => handleNextWord(gameState), NEXT_QUESTION_DELAY);
+    });
+
+    // Skip button click
+    btnSkip.addEventListener("click", () => handleNextWord(gameState));
+
+    // Play Again button click
+    btnPlayAgain.addEventListener("click", () => {
+        gameState = new GameState(fetchWords(), TOTAL_ROUNDS);
+        changeScreen(Screens.GAME_SCREEN);
+        handleNextWord(gameState);
+    });
 });
 
-function displayGameScreen() {
-    homeScreen.classList.add("hidden");
-    gameScreen.classList.remove("hidden");
-}
-
-async function fetchWords(file, count) {
-    try {
-        const res = await fetch(file);
-        const data = await res.json();
-
-        const shuffledWords = data.words.sort(() => Math.random() - 0.5);
-        const selectedWords = shuffledWords.slice(0, count);
-
-        return selectedWords.map(word => new Word(word))
-    } catch (err) {
-        console.error("Error fetching JSON: ", err);
-        return [];
+function changeScreen(screen) {
+    switch(screen) {
+        case Screens.HOME_SCREEN:
+            homeScreen.classList.remove("hidden");
+            gameScreen.classList.add("hidden");
+            scoreScreen.classList.add("hidden");
+            break;
+        case Screens.GAME_SCREEN:
+            homeScreen.classList.add("hidden");
+            gameScreen.classList.remove("hidden");
+            scoreScreen.classList.add("hidden");
+            break;
+        case Screens.SCORE_SCREEN:
+            homeScreen.classList.add("hidden");
+            gameScreen.classList.add("hidden");
+            scoreScreen.classList.remove("hidden");
+            break;
     }
 }
 
-function updateRoundNumber(round, totalRounds) {
+function fetchWords() {
+    return WORDLIST.map(word => new Word(word));
+}
+
+function displayRoundNumber(round, totalRounds) {
     roundDetailsTxt.innerHTML = `${round} / ${totalRounds}`;
 }
 
@@ -84,6 +117,7 @@ function enableInputs() {
     answerField.removeEventListener("keydown", preventKeydown);
     btnAnswer.disabled = false;
     btnSkip.disabled = false;
+    answerField.focus();
 }
 
 function cleanPage() {
@@ -94,8 +128,9 @@ function cleanPage() {
     loader.classList.add("hidden");
 }
 
-function handleCheckAnswer(word, answer) {
+function handleCheckAnswer(word, answer, increaseScore) {
     if (word.checkAnswer(answer)) {
+        increaseScore();
         correctAnswerFeedback.classList.remove("hidden");
     } else {
         wrongAnswerFeedback.classList.remove("hidden");
@@ -109,34 +144,65 @@ function displayLoader() {
     loader.classList.remove("hidden");
 }
 
-function loadWord(words, round) {    
+function loadWord(word, round, totalRounds) {    
     enableInputs();
     cleanPage();
 
-    const word = words[round];
-    round++;
-    updateRoundNumber(round, ROUND_COUNT);
+    displayRoundNumber(round, totalRounds);
 
     displayWord(word.getScrambledWord());
+}
 
-    // Answer button click
-    btnAnswer.addEventListener("click", () => {
-        disableInputs();
-        handleCheckAnswer(word, answerField.value);
-        displayLoader();
+function handleNextWord(gameState) {
+    if (gameState.isGameOver()) {
+        handleGameOver(gameState.score);
+        return;
+    }
 
-        if (round < ROUND_COUNT) {
-            setTimeout(() => loadWord(words, round), 2000);
+    const word = gameState.getNextWord();
+    if (!word) {
+        console.log("Word is null.");
+        return;
+    }
+    loadWord(word, gameState.round, gameState.totalRounds);
+}
+
+function handleGameOver(finalScore) {
+    changeScreen(Screens.SCORE_SCREEN);
+    finalScoreTxt.innerHTML = finalScore;
+}
+
+class GameState {
+    constructor(words, totalRounds) {
+        this.totalRounds = totalRounds;
+        this.round = 0;
+        this.words = words;
+        this.currentWord = null;
+        this.score = 0;
+    }
+
+    getNextWord() {
+        if (this.round >= this.words.length) {
+            return null;
         }
-    });
+
+        this.currentWord = this.words[this.round++];
+        return this.currentWord;
+    }
+
+    isGameOver() {
+        return this.round >= this.totalRounds;
+    }
+
+    increaseScore() {
+        this.score += 10;
+    }
 }
 
 class Word {
     constructor(word) {
         this.word = word.toUpperCase();
         this.scrambledWord = null;
-        this.isDone = false;
-        this.isCorrect = false;
     }
 
     getWord() {
@@ -158,7 +224,7 @@ class Word {
     }
 
     getScrambledWord() {
-        while (this.scrambledWord == null) {
+        while (this.scrambledWord == null || (this.word.length > 1 && this.word === this.scrambledWord)) {
             this.#shuffle();
         }
 
@@ -166,11 +232,6 @@ class Word {
     }
 
     checkAnswer(answer) {
-        this.isDone = true;
-        if (answer.toUpperCase() === this.word) {
-            this.isCorrect = true;
-            return true;
-        }
-        return false;
+        return answer.trim().toUpperCase() === this.word;
     }
 };

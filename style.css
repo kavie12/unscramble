@@ -10,7 +10,6 @@ body {
     color: whitesmoke;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
 }
 
@@ -20,6 +19,10 @@ body {
 
 .container#gameScreen {
     margin-top: 28px;
+}
+
+.container#scoreScreen {
+    margin-top: 36vh;
 }
 
 .hidden {
@@ -61,6 +64,12 @@ h1 {
     font-weight: bold;
 }
 
+.game-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 .answer-field {
     margin-top: 60px;
     outline: none;
@@ -80,18 +89,6 @@ h1 {
     transition: all 0.3s;
 }
 
-.skip-button {
-    margin-top: 24px;
-    font-size: 16px;
-    background: none;
-    color: whitesmoke;
-    outline: none;
-    border: none;
-    padding: 0;
-    text-decoration: underline;
-    cursor: pointer;
-}
-
 .answer-button:not(:disabled):hover {
     background-color: #00c5df;
     box-shadow: #002227bb 4px 8px 12px -4px;
@@ -105,6 +102,23 @@ h1 {
 .answer-button:disabled {
     color: black;
     background-color: #13a4b8;
+    cursor: default;
+}
+
+.skip-button {
+    margin-top: 24px;
+    font-size: 16px;
+    background: none;
+    color: whitesmoke;
+    outline: none;
+    border: none;
+    padding: 0;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.skip-button:disabled {
+    color: rgb(192, 192, 192);
     cursor: default;
 }
 
@@ -136,4 +150,43 @@ h1 {
     100% {
         background-size: 100%
     }
+}
+
+.game-over-congrats {
+    font-size: 36px;
+    color: #d4d400;
+}
+
+.game-over-score {
+    margin-top: 32px;
+    font-size: 24px;
+}
+
+.game-over-score span {
+    text-decoration: underline;
+}
+
+.play-again-button {
+    margin-top: 20px;
+    font-size: 20px;
+    color: black;
+    padding: 20px 36px;
+    border-radius: 36px;
+    border-width: 4px;
+    border-style: solid;
+    border-color: black;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.1s;
+    box-shadow: black 4px 8px;
+}
+
+.play-again-button:hover {
+    color: black;
+    border-color: black;
+}
+
+.play-again-button:active {
+    transform: translate(2px, 4px);
+    box-shadow: black 2px 4px;
 }

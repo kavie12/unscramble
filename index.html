@@ -19,10 +19,12 @@
     <div class="container hidden" id="gameScreen">
         <span id="roundDetails"></span>
         <span class="scrambled-word" id="scrambledWord"></span>
-        <input type="text" name="answer" id="answerField" class="answer-field" placeholder="Your answer..."
-            autocomplete="off">
-        <button class="answer-button" id="btnAnswer" type="button">Answer</button>
-        <button class="skip-button" id="btnSkip" type="button">Skip</button>
+        <form class="game-form">
+            <input type="text" name="answer" id="answerField" class="answer-field" placeholder="Your answer..."
+                autocomplete="off">
+            <button class="answer-button" id="btnAnswer" type="submit">Answer</button>
+            <button class="skip-button" id="btnSkip" type="button">Skip</button>
+        </form>
         <div class="messages">
             <p class="correct-answer-feedback hidden" id="correctAnswerFeedback">Your answer is correct!</p>
             <p class="wrong-answer-feedback hidden" id="wrongAnswerFeedback">Your answer is wrong!</p>
@@ -30,6 +32,12 @@
                 correct answer!</p>
         </div>
         <div class="loader hidden" id="loader"></div>
+    </div>
+
+    <div class="container hidden" id="scoreScreen">
+        <span class="game-over-congrats">Congratulations!</span>
+        <p class="game-over-score">Your Final Score is <span id="finalScore"></span>.</p>
+        <button class="play-again-button" id="btnPlayAgain" type="button">Play Again</button>
     </div>
 
     <script src="./index.js"></script>
