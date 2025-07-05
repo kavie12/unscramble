@@ -1,17 +1,6 @@
 const TOTAL_ROUNDS = 10;
-const WORDLIST = [
-    "Mango",
-    "Banana",
-    "Chair",
-    "Laptop",
-    "Car",
-    "Bottle",
-    "Tree",
-    "Water",
-    "Light",
-    "Book"
-];
 const NEXT_QUESTION_DELAY = 2000;
+const WORDS_FILE = "./words.json";
 
 const homeScreen = document.getElementById("homeScreen");
 const gameScreen = document.getElementById("gameScreen");
@@ -46,9 +35,10 @@ document.addEventListener("DOMContentLoaded", () => {
     btnPlay.addEventListener("click", () => {
         changeScreen(Screens.GAME_SCREEN);
 
-        gameState = new GameState(fetchWords(), TOTAL_ROUNDS);
-
-        handleNextWord(gameState);
+        fetchWords(WORDS_FILE, TOTAL_ROUNDS).then(words => {
+            gameState = new GameState(words, TOTAL_ROUNDS);
+            handleNextWord(gameState);
+        });
     });
 
     // Answer button click
@@ -65,9 +55,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Play Again button click
     btnPlayAgain.addEventListener("click", () => {
-        gameState = new GameState(fetchWords(), TOTAL_ROUNDS);
-        changeScreen(Screens.GAME_SCREEN);
-        handleNextWord(gameState);
+        fetchWords(WORDS_FILE, TOTAL_ROUNDS).then(words => {
+            gameState = new GameState(words, TOTAL_ROUNDS);
+            changeScreen(Screens.GAME_SCREEN);
+            handleNextWord(gameState);
+        });
     });
 });
 
@@ -91,8 +83,19 @@ function changeScreen(screen) {
     }
 }
 
-function fetchWords() {
-    return WORDLIST.map(word => new Word(word));
+async function fetchWords(file, count) {
+    try {
+        const res = await fetch(file);
+        const data = await res.json();
+
+        const shuffledWords = data.words.sort(() => Math.random() - 0.5);
+        const selectedWords = shuffledWords.slice(0, count);
+
+        return selectedWords.map(word => new Word(word))
+    } catch (err) {
+        console.error("Error fetching JSON: ", err);
+        return [];
+    }
 }
 
 function displayRoundNumber(round, totalRounds) {
