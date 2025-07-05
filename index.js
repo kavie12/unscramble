@@ -26,42 +26,68 @@ const Screens = Object.freeze({
     SCORE_SCREEN: 2
 });
 
-// START GAME
-document.addEventListener("DOMContentLoaded", () => {
+let gameState = null;
+let wordBank = null;
 
-    let gameState = null;
+// ENTRY POINT
+play();
 
-    // Play button click
-    btnPlay.addEventListener("click", () => {
-        changeScreen(Screens.GAME_SCREEN);
+function play() {
+    document.addEventListener("DOMContentLoaded", () => {
+        // Fetch word bank
+        btnPlay.disabled = true;
+        fetchWordBank(WORDS_FILE)
+            .then(words => {
+                wordBank = words;
+                btnPlay.disabled = false;
+            })
+            .catch(err => {
+                console.error("Error fetching words: ", err);
+            });
 
-        fetchWords(WORDS_FILE, TOTAL_ROUNDS).then(words => {
-            gameState = new GameState(words, TOTAL_ROUNDS);
-            handleNextWord(gameState);
-        });
+        // Play button click
+        btnPlay.addEventListener("click", () => startGame(wordBank, TOTAL_ROUNDS));
+
+        // Answer button click
+        btnAnswer.addEventListener("click", () => handleAnswer(gameState, NEXT_QUESTION_DELAY));
+
+        // Skip button click
+        btnSkip.addEventListener("click", () => handleNextWord(gameState));
+
+        // Play Again button click
+        btnPlayAgain.addEventListener("click", () => startGame(wordBank, TOTAL_ROUNDS));
     });
+}
 
-    // Answer button click
-    btnAnswer.addEventListener("click", () => {
-        disableInputs();
-        handleCheckAnswer(gameState.currentWord, answerField.value, () => gameState.increaseScore());
-        displayLoader();
+async function fetchWordBank(file) {
+    try {
+        const res = await fetch(file);
+        const data = await res.json();
+        return data.words;
+    } catch (err) {
+        console.error("Error fetching JSON: ", err);
+        return [];
+    }
+}
 
-        setTimeout(() => handleNextWord(gameState), NEXT_QUESTION_DELAY);
-    });
+function startGame(words, totalRounds) {
+    if (!words) {
+        console.log("Word bank is null.");
+        return;
+    }
 
-    // Skip button click
-    btnSkip.addEventListener("click", () => handleNextWord(gameState));
+    gameState = new GameState(getProcessedWords(words, totalRounds), totalRounds);
+    changeScreen(Screens.GAME_SCREEN);
+    handleNextWord(gameState);
+}
 
-    // Play Again button click
-    btnPlayAgain.addEventListener("click", () => {
-        fetchWords(WORDS_FILE, TOTAL_ROUNDS).then(words => {
-            gameState = new GameState(words, TOTAL_ROUNDS);
-            changeScreen(Screens.GAME_SCREEN);
-            handleNextWord(gameState);
-        });
-    });
-});
+function handleAnswer(gameState, nextQuestionDelay) {
+    disableInputs();
+    handleCheckAnswer(gameState.currentWord, answerField.value, () => gameState.increaseScore());
+    displayLoader();
+
+    setTimeout(() => handleNextWord(gameState), nextQuestionDelay);
+}
 
 function changeScreen(screen) {
     switch(screen) {
@@ -83,19 +109,11 @@ function changeScreen(screen) {
     }
 }
 
-async function fetchWords(file, count) {
-    try {
-        const res = await fetch(file);
-        const data = await res.json();
+function getProcessedWords(words, count) {
+    const shuffledWords = words.sort(() => Math.random() - 0.5);
+    const selectedWords = shuffledWords.slice(0, count);
 
-        const shuffledWords = data.words.sort(() => Math.random() - 0.5);
-        const selectedWords = shuffledWords.slice(0, count);
-
-        return selectedWords.map(word => new Word(word))
-    } catch (err) {
-        console.error("Error fetching JSON: ", err);
-        return [];
-    }
+    return selectedWords.map(word => new Word(word));
 }
 
 function displayRoundNumber(round, totalRounds) {
@@ -106,18 +124,14 @@ function displayWord(word) {
     scrambledWordTxt.innerHTML = word;
 }
 
-function preventKeydown(e) {
-    e.preventDefault();
-}
-
 function disableInputs() {
-    answerField.addEventListener("keydown", preventKeydown);
+    answerField.disabled = true;
     btnAnswer.disabled = true;
     btnSkip.disabled = true;
 }
 
 function enableInputs() {
-    answerField.removeEventListener("keydown", preventKeydown);
+    answerField.disabled = false;
     btnAnswer.disabled = false;
     btnSkip.disabled = false;
     answerField.focus();
@@ -177,9 +191,9 @@ function handleGameOver(finalScore) {
 
 class GameState {
     constructor(words, totalRounds) {
+        this.words = words;
         this.totalRounds = totalRounds;
         this.round = 0;
-        this.words = words;
         this.currentWord = null;
         this.score = 0;
     }
@@ -227,7 +241,7 @@ class Word {
     }
 
     getScrambledWord() {
-        while (this.scrambledWord == null || (this.word.length > 1 && this.word === this.scrambledWord)) {
+        while (!this.scrambledWord || (this.word.length > 1 && this.word === this.scrambledWord)) {
             this.#shuffle();
         }
 
