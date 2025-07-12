@@ -22,7 +22,21 @@ body {
 }
 
 .container#scoreScreen {
-    margin-top: 36vh;
+    margin-top: 32vh;
+    animation-name: score-screen-animation;
+    animation-duration: 1s;
+}
+
+@keyframes score-screen-animation {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }
 
 .hidden {
