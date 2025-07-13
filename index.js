@@ -20,11 +20,11 @@ const loader = document.getElementById("loader");
 const finalScoreTxt = document.getElementById("finalScore");
 const btnPlayAgain = document.getElementById("btnPlayAgain");
 
-const Screens = {
+const Screens = Object.freeze({
     HOME_SCREEN: 0,
     GAME_SCREEN: 1,
     SCORE_SCREEN: 2
-};
+});
 
 let gameState = null;
 let wordBank = null;
